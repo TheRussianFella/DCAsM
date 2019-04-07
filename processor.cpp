@@ -1,12 +1,14 @@
 #include "processor.h"
-#include <bitset>
 
 /////// Constructor
 Processor::Processor() {
 
-  this->command_table.insert(std::make_pair(3, &Processor::addi ));
+  this->command_table.insert(std::make_pair(3,  &Processor::addi ));
   this->command_table.insert(std::make_pair(46, &Processor::jmp ));
   this->command_table.insert(std::make_pair(24, &Processor::mov ));
+  this->command_table.insert(std::make_pair(1,  &Processor::syscall ));
+  this->command_table.insert(std::make_pair(12, &Processor::lc ));
+  this->command_table.insert(std::make_pair(6,  &Processor::mul ));
 
   this->frame = MEMORY_SIZE-1;
   this->stack_pointer = MEMORY_SIZE-1;
@@ -72,9 +74,51 @@ int Processor::addi(u32 word) {
   int reg, value;
   parse_ri(word, reg, value);
 
-  std::cout << "ADDI: " << reg << " " << value << "\n";
-  
-  return 1;
+  data_registers[reg] += value;
+
+  return 0;
+}
+
+int Processor::syscall(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  int ret_val = 0;
+
+  switch (value) {
+    case EXIT:
+      ret_val = 1;
+      break;
+    case SCANINT:
+      std::cin >> data_registers[reg];
+      break;
+    case PRINTINT:
+      std::cout << data_registers[reg];
+      break;
+    case GETCHAR:
+      std::cin >> data_registers[reg];
+      break;
+    case PUTCHAR:
+      std::cout << static_cast<char>(data_registers[reg]);
+      break;
+    default:
+      ret_val = 1;
+      std::cout << "No such syscall!\n";
+      break;
+  }
+
+  return ret_val;
+}
+
+int Processor::lc(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  data_registers[reg] = value;
+
+  return 0;
 }
 
 // RM
@@ -85,7 +129,7 @@ int Processor::jmp(u32 word) {
 
   std::cout << "JMP: " << reg << " " << value << "\n";
 
-  return 1;
+  return 0;
 }
 
 // RR
@@ -94,7 +138,20 @@ int Processor::mov(u32 word) {
   int in_reg, out_reg, value;
   parse_rr(word, in_reg, out_reg, value);
 
-  std::cout << "MOV: " << in_reg << " " << out_reg << " " << value << "\n";
+  data_registers[in_reg] = data_registers[out_reg] + value;
 
-  return 1;
+  return 0;
+}
+
+int Processor::mul(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  long result = data_registers[in_reg] * (data_registers[out_reg] + value);
+
+  data_registers[in_reg] = result & 4294967295; // First 32 bits
+  data_registers[in_reg+1] = (result >> 32) & 4294967295; // Last 32 bits
+
+  return 0;
 }
