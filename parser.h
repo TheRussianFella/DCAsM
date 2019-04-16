@@ -12,8 +12,10 @@
 class Parser {
 
 private:
+
   std::map<std::string, std::pair<u32, command_types>> command_codes;
-  u32 parse_line(const std::string& command_line);
+  u32 parse_line(const std::string& command_line, const std::map<std::string, int>& namings_map);
+  int insert_namings(std::string& line, const std::map<std::string, int>& namings_map);
 
 public:
   Parser(const std::map<std::string, std::pair<u32, command_types>>& command_codes);

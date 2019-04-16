@@ -19,6 +19,7 @@ private:
   u32 frame;
   u32 stack_pointer;
   u32 program_pointer;
+  u32 flags;
 
   u32 memory[MEMORY_SIZE] = {0};
   std::map<u32, processor_function> command_table;
@@ -33,7 +34,7 @@ private:
   int addi(u32 word);
   int syscall(u32 word);
   int lc(u32 word);
-  
+
   // RM Commands
   int jmp(u32 word);
 

@@ -13,6 +13,7 @@ Processor::Processor() {
   this->frame = MEMORY_SIZE-1;
   this->stack_pointer = MEMORY_SIZE-1;
   this->program_pointer = 0;
+  this->flags = 0;
 }
 
 
