@@ -1,23 +1,73 @@
 #include "parser.h"
+#include <algorithm>
+#include <cctype>
+#include <locale>
+
+#include <iostream>
+
+// Utilities
+
+// trim from start (in place)
+inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+// trim from end (in place)
+inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
+// trim from both ends (in place)
+inline void trim(std::string &s) {
+    ltrim(s);
+    rtrim(s);
+}
+
+inline bool is_integer(const std::string & s)
+{
+   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
+
+   char * p;
+   strtol(s.c_str(), &p, 10);
+
+   return (*p == 0);
+}
+
+// Parser
 
 Parser::Parser(const std::map<std::string, std::pair<u32, command_types>>& command_codes) {
   this->command_codes.insert(command_codes.begin(), command_codes.end());
 };
 
-int Parser::insert_namings(std::string& line, const std::map<std::string, int>& namings_map) {
 
+u32 Parser::get_namings(const std::string& line, std::map<std::string, u32>& namings_map) {
+
+/*
   size_t pos;
 
   for (auto it = namings_map.begin(); it != namings_map.end(); ++it) {
     pos = line.find(it->first);
-    if (pos != std::string::npos)
+    if (pos != std::string::npos){
+      std::cout << pos << " " << it->first.size() << " " << it->first << "\n";
       line.replace(pos, it->first.size(), it->first);
+    }
   }
+*/
 
-  return 0;
+  if ( is_integer(line ))
+    return std::stoi(line);
+  else {
+    u32 val = namings_map[line];
+    return val;
+  }
 }
 
-u32 Parser::parse_line(const std::string& command_line, const std::map<std::string, int>& namings_map) {
+
+u32 Parser::parse_line(const std::string& command_line, std::map<std::string, u32>& namings_map) {
 
   std::stringstream ss(command_line);
   std::string tmp;
@@ -25,7 +75,7 @@ u32 Parser::parse_line(const std::string& command_line, const std::map<std::stri
   ss >> tmp; // Reading name of the command
 
   // Checking if the line is a naming or an end statement
-  if (tmp.find(":") != std::string::npos || tmp.compare("end"))
+  if (tmp.find(":") != std::string::npos || !tmp.compare("end"))
     return 0;
 
   std::pair<u32, command_types> command_info = command_codes[tmp];
@@ -35,10 +85,12 @@ u32 Parser::parse_line(const std::string& command_line, const std::map<std::stri
 
   command_word |= command_info.first;
 
-  if ( command_word == 41 || ( command_word >= 46 && command_word <= 52) ) { // calli and different jumps
+  if ( command_word == 41 || command_word == 42 || ( command_word >= 46 && command_word <= 52) ) { // calli and different jumps
     ss >> tmp; // Read address
-    insert_namings(tmp, namings_map);
-    u32 val = std::stoi( tmp );
+    //insert_namings(tmp, namings_map);
+    //std::cout << tmp << "\n";
+    //u32 val = std::stoi( tmp );
+    u32 val = get_namings(tmp, namings_map);
 
     command_word = command_word << 24;
     command_word |= val&1048575;
@@ -56,8 +108,7 @@ u32 Parser::parse_line(const std::string& command_line, const std::map<std::stri
     command_word |= reg;
 
     ss >> tmp;
-    insert_namings(tmp, namings_map);
-    u32 val = std::stoi( tmp );
+    u32 val = get_namings(tmp, namings_map);
 
     command_word = command_word << 20;
     command_word |= val&1048575; // Take only last 20 bits
@@ -73,8 +124,7 @@ u32 Parser::parse_line(const std::string& command_line, const std::map<std::stri
     }
 
     ss >> tmp;
-    insert_namings(tmp, namings_map);
-    u32 val = std::stoi( tmp );
+    u32 val = get_namings(tmp, namings_map);
 
     command_word = command_word << 16;
     command_word |= val&65535; // Take only last 16 bits
@@ -93,7 +143,7 @@ std::vector<u32> Parser::parse_file(const std::string& file_path) {
   std::ifstream code_file(file_path);
   std::string line;
 
-  std::map<std::string, int> namings_map;
+  std::map<std::string, u32> namings_map;
 
   int cur_pos = 0;
 
@@ -106,15 +156,23 @@ std::vector<u32> Parser::parse_file(const std::string& file_path) {
 
   // Parsing code istelf
 
-  u32 parsed_line;
-  while( std::getline(code_file, line) ) {
+  std::ifstream file(file_path);
 
+  u32 parsed_line;
+  while( std::getline(file, line) ) {
+
+    trim(line);
     parsed_line = this->parse_line(line, namings_map);
 
     if ( parsed_line )
       commands.push_back(parsed_line);
 
   }
+
+
+  // Add starting point
+
+  commands.insert(commands.begin(), namings_map["main"]);
 
   return commands;
 }

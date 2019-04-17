@@ -9,8 +9,8 @@ std::map<std::string, std::pair<u32, command_types>> get_command_table() {
   command_codes.insert(std::make_pair("ori", std::make_pair(20, _RI)));
   command_codes.insert(std::make_pair("syscall", std::make_pair(1, _RI)));
   command_codes.insert(std::make_pair("lc", std::make_pair(12, _RI)));
-  command_codes.insert(std::make_pair("ret", std::make_pair(42, _RI)));
-
+  command_codes.insert(std::make_pair("push", std::make_pair(38, _RI)));
+  command_codes.insert(std::make_pair("pop", std::make_pair(39, _RI)));
 
   // RM
   command_codes.insert(std::make_pair("jmp",  std::make_pair(46, _RM)));
@@ -21,11 +21,13 @@ std::map<std::string, std::pair<u32, command_types>> get_command_table() {
   command_codes.insert(std::make_pair("jge",  std::make_pair(51, _RM)));
   command_codes.insert(std::make_pair("jg",  std::make_pair(52, _RM)));
   command_codes.insert(std::make_pair("calli",std::make_pair(41, _RM)));
+  command_codes.insert(std::make_pair("ret", std::make_pair(42, _RI)));
 
   // RR
   command_codes.insert(std::make_pair("mov", std::make_pair(24, _RR)));
   command_codes.insert(std::make_pair("mul", std::make_pair(6, _RR)));
   command_codes.insert(std::make_pair("call",std::make_pair(40, _RR)));
+  command_codes.insert(std::make_pair("loadr",std::make_pair(68, _RR)));
 
   return command_codes;
 

@@ -7,7 +7,7 @@
 #include "lang_specs.h"
 
 #define MEMORY_SIZE 1000
-#define NUM_REGISTERS 12
+#define NUM_REGISTERS 14
 
 class Processor {
 
@@ -17,7 +17,6 @@ private:
 
   u32 data_registers[NUM_REGISTERS] = {0};
   u32 frame;
-  u32 stack_pointer;
   u32 program_pointer;
   u32 flags;
 
@@ -34,19 +33,30 @@ private:
   int addi(u32 word);
   int syscall(u32 word);
   int lc(u32 word);
+  int push(u32 word);
+  int pop(u32 word);
 
   // RM Commands
+  int calli(u32 word);
+  int ret(u32 word);
   int jmp(u32 word);
+  int jne(u32 word);
+  int jeq(u32 word);
+  int jle(u32 word);
+  int jl(u32 word);
+  int jge(u32 word);
+  int jg(u32 word);
 
   // RR Commands
   int mov(u32 word);
   int mul(u32 word);
+  int loadr(u32 word);
 
 public:
 
   Processor();
 
-  int load_program(std::vector<u32> program);
+  int load_program(const std::vector<u32>& program);
   int exec();
 
 };

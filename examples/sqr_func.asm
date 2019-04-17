@@ -4,7 +4,7 @@ sqr:
   mul r0 r2 0
   ret 1
 intout:
-  load r0 r14 1
+  loadr r0 r14 1
   syscall r0 102
   lc r0 10
   syscall r0 105
@@ -16,5 +16,5 @@ main:
   push r0 0
   calli intout
   lc r0 0
-  syscall r0 0 
+  syscall r0 0
   end main
