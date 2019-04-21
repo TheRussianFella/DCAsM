@@ -31,10 +31,12 @@ private:
 
   // RI Commands
   int addi(u32 word);
+  int subi(u32 word);
   int syscall(u32 word);
   int lc(u32 word);
   int push(u32 word);
   int pop(u32 word);
+  int cmpi(u32 word);
 
   // RM Commands
   int calli(u32 word);

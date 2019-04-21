@@ -4,6 +4,7 @@
 Processor::Processor() {
 
   this->command_table.insert(std::make_pair(3,  &Processor::addi ));
+  this->command_table.insert(std::make_pair(5,  &Processor::subi ));
   this->command_table.insert(std::make_pair(24, &Processor::mov ));
   this->command_table.insert(std::make_pair(1,  &Processor::syscall ));
   this->command_table.insert(std::make_pair(12, &Processor::lc ));
@@ -21,6 +22,7 @@ Processor::Processor() {
 
   this->command_table.insert(std::make_pair(38, &Processor::push ));
   this->command_table.insert(std::make_pair(39, &Processor::pop ));
+  this->command_table.insert(std::make_pair(44, &Processor::cmpi ));
   this->command_table.insert(std::make_pair(68, &Processor::loadr ));
 
   this->frame = MEMORY_SIZE-1;
@@ -60,9 +62,15 @@ int Processor::exec() {
   u32 word = memory[program_pointer++];
 
   processor_function func = command_table[get_command_num(word)];
-
+  //std::cout << "Command: " << get_command_num(word) << "\n";
   int code = (this->*func)(word);
 
+/*
+  std::cout << "Stack: \n";
+  for (int i = 1; i < 10; ++i)
+    std::cout << memory[MEMORY_SIZE-i]<<"\n";
+  std::cout << "Curr stack: " << memory[data_registers[14]] << "\n";
+*/
   return code;
 }
 
@@ -90,6 +98,16 @@ int Processor::addi(u32 word) {
   parse_ri(word, reg, value);
 
   data_registers[reg] += value;
+
+  return 0;
+}
+
+int Processor::subi(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  data_registers[reg] -= value;
 
   return 0;
 }
@@ -160,6 +178,20 @@ int Processor::pop(u32 word) {
   return 0;
 }
 
+int Processor::cmpi(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  if (data_registers[reg] > value)
+    flags = 1;
+  else if (data_registers[reg] == value)
+    flags = 0;
+  else
+    flags = -1;
+
+  return 0;
+}
 // RM
 
 int Processor::calli(u32 word) {
@@ -177,42 +209,48 @@ int Processor::calli(u32 word) {
 }
 
 int Processor::jmp(u32 word) {
-  return calli(word);
+
+  int reg, value;
+  parse_rm(word, reg, value);
+
+  program_pointer = value;
+
+  return 0;
 }
 
 int Processor::jne(u32 word) {
   if (flags != 0)
-    return calli(word);
+    return jmp(word);
   return 0;
 }
 
 int Processor::jeq(u32 word) {
   if (flags == 0)
-    return calli(word);
+    return jmp(word);
   return 0;
 }
 
 int Processor::jle(u32 word) {
   if (flags <= 0)
-    return calli(word);
+    return jmp(word);
   return 0;
 }
 
 int Processor::jl(u32 word) {
   if (flags < 0)
-    return calli(word);
+    return jmp(word);
   return 0;
 }
 
 int Processor::jge(u32 word) {
   if (flags >= 0)
-    return calli(word);
+    return jmp(word);
   return 0;
 }
 
 int Processor::jg(u32 word) {
   if (flags > 0)
-    return calli(word);
+    return jmp(word);
   return 0;
 }
 
