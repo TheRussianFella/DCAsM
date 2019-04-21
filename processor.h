@@ -3,12 +3,11 @@
 #include <cstring>
 #include <iostream>
 #include <climits>
-#include <bitset>
 
 #include "lang_specs.h"
 
-#define MEMORY_SIZE 1000
-#define NUM_REGISTERS 14
+#define MEMORY_SIZE 1048575
+#define NUM_REGISTERS 15
 
 class Processor {
 
