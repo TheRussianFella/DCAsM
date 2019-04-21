@@ -24,6 +24,13 @@ Processor::Processor() {
   this->command_table.insert(std::make_pair(39, &Processor::pop ));
   this->command_table.insert(std::make_pair(44, &Processor::cmpi ));
   this->command_table.insert(std::make_pair(68, &Processor::loadr ));
+  this->command_table.insert(std::make_pair(32, &Processor::addd ));
+  this->command_table.insert(std::make_pair(33, &Processor::subd ));
+  this->command_table.insert(std::make_pair(34, &Processor::muld ));
+  this->command_table.insert(std::make_pair(35, &Processor::divd ));
+  this->command_table.insert(std::make_pair(36, &Processor::itod ));
+  this->command_table.insert(std::make_pair(37, &Processor::dtoi ));
+
 
   this->frame = MEMORY_SIZE-1;
   this->data_registers[14] = MEMORY_SIZE; // Stack pointer
@@ -56,21 +63,37 @@ int Processor::parse_ri(u32 word, int &reg, int &value) {
   return 0;
 }
 
+double Processor::get_double(int reg) {
+
+    long num = 0;
+
+    num |= data_registers[reg+1];
+    num = num << 32;
+    num |= data_registers[reg];
+
+    double* d = reinterpret_cast<double*>(&num);
+
+    return *d;
+}
+
+int Processor::dump_double(double num, int reg) {
+
+  long* p = reinterpret_cast<long*>(&num);
+
+  data_registers[reg] = (*p) & 4294967295; // 32 bits
+  data_registers[reg+1] = ((*p) >> 32) & 4294967295;
+
+  return 0;
+}
+
 /////// Interface
 int Processor::exec() {
 
   u32 word = memory[program_pointer++];
 
   processor_function func = command_table[get_command_num(word)];
-  //std::cout << "Command: " << get_command_num(word) << "\n";
   int code = (this->*func)(word);
 
-/*
-  std::cout << "Stack: \n";
-  for (int i = 1; i < 10; ++i)
-    std::cout << memory[MEMORY_SIZE-i]<<"\n";
-  std::cout << "Curr stack: " << memory[data_registers[14]] << "\n";
-*/
   return code;
 }
 
@@ -128,6 +151,15 @@ int Processor::syscall(u32 word) {
       break;
     case PRINTINT:
       std::cout << data_registers[reg];
+      break;
+    case SCANDOUBLE: {
+      double d;
+      std::cin >> d;
+      dump_double(d, reg);
+      break;
+    }
+    case PRINTDOUBLE:
+      std::cout << get_double(reg);
       break;
     case GETCHAR:
       std::cin >> data_registers[reg];
@@ -295,6 +327,86 @@ int Processor::loadr(u32 word) {
   parse_rr(word, in_reg, out_reg, value);
 
   data_registers[in_reg] = memory[data_registers[out_reg] + value];
+
+  return 0;
+}
+
+int Processor::addd(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  double a, b;
+  a = get_double(in_reg);
+  b = get_double(out_reg);
+
+  dump_double(a + b + value, in_reg);
+
+  return 0;
+}
+
+int Processor::subd(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  double a, b;
+  a = get_double(in_reg);
+  b = get_double(out_reg);
+
+  dump_double(a - b + value, in_reg);
+
+  return 0;
+}
+
+int Processor::muld(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  double a, b;
+  a = get_double(in_reg);
+  b = get_double(out_reg);
+
+  dump_double((a * b) + value, in_reg);
+
+  return 0;
+}
+
+int Processor::divd(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  double a, b;
+  a = get_double(in_reg);
+  b = get_double(out_reg);
+
+  dump_double((a / b) + value, in_reg);
+
+  return 0;
+}
+
+int Processor::itod(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  double num = static_cast<double>(data_registers[out_reg]);
+
+  dump_double(num, in_reg);
+
+  return 0;
+}
+
+int Processor::dtoi(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  u32 num = static_cast<u32>(get_double(out_reg));
+
+  data_registers[in_reg] = num;
 
   return 0;
 }

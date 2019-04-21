@@ -28,8 +28,14 @@ std::map<std::string, std::pair<u32, command_types>> get_command_table() {
   // RR
   command_codes.insert(std::make_pair("mov", std::make_pair(24, _RR)));
   command_codes.insert(std::make_pair("mul", std::make_pair(6, _RR)));
-  command_codes.insert(std::make_pair("call",std::make_pair(40, _RR)));
-  command_codes.insert(std::make_pair("loadr",std::make_pair(68, _RR)));
+  command_codes.insert(std::make_pair("call", std::make_pair(40, _RR)));
+  command_codes.insert(std::make_pair("loadr", std::make_pair(68, _RR)));
+  command_codes.insert(std::make_pair("addd", std::make_pair(32, _RR)));
+  command_codes.insert(std::make_pair("subd", std::make_pair(33, _RR)));
+  command_codes.insert(std::make_pair("muld", std::make_pair(34, _RR)));
+  command_codes.insert(std::make_pair("divd", std::make_pair(35, _RR)));
+  command_codes.insert(std::make_pair("itod", std::make_pair(36, _RR)));
+  command_codes.insert(std::make_pair("dtoi", std::make_pair(37, _RR)));
 
   return command_codes;
 

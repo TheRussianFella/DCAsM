@@ -46,18 +46,6 @@ Parser::Parser(const std::map<std::string, std::pair<u32, command_types>>& comma
 
 u32 Parser::get_namings(const std::string& line, std::map<std::string, u32>& namings_map) {
 
-/*
-  size_t pos;
-
-  for (auto it = namings_map.begin(); it != namings_map.end(); ++it) {
-    pos = line.find(it->first);
-    if (pos != std::string::npos){
-      std::cout << pos << " " << it->first.size() << " " << it->first << "\n";
-      line.replace(pos, it->first.size(), it->first);
-    }
-  }
-*/
-
   if ( is_integer(line ))
     return std::stoi(line);
   else {
@@ -87,9 +75,6 @@ u32 Parser::parse_line(const std::string& command_line, std::map<std::string, u3
 
   if ( command_word == 41 || command_word == 42 || ( command_word >= 46 && command_word <= 52) ) { // calli and different jumps
     ss >> tmp; // Read address
-    //insert_namings(tmp, namings_map);
-    //std::cout << tmp << "\n";
-    //u32 val = std::stoi( tmp );
     u32 val = get_namings(tmp, namings_map);
 
     command_word = command_word << 24;

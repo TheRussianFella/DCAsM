@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include <climits>
+#include <bitset>
 
 #include "lang_specs.h"
 
@@ -28,6 +29,8 @@ private:
   int parse_rm(u32 word, int& reg, int& value);
   int parse_rr(u32 word, int& in_reg, int& out_reg, int& value);
   int parse_ri(u32 word, int& reg, int& value);
+  double get_double(int reg);
+  int dump_double(double num, int reg);
 
   // RI Commands
   int addi(u32 word);
@@ -53,6 +56,12 @@ private:
   int mov(u32 word);
   int mul(u32 word);
   int loadr(u32 word);
+  int addd(u32 word);
+  int subd(u32 word);
+  int muld(u32 word);
+  int divd(u32 word);
+  int dtoi(u32 word);
+  int itod(u32 word);
 
 public:
 

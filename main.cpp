@@ -11,7 +11,7 @@ int main() {
   std::map<std::string, std::pair<u32, command_types>> command_codes = get_command_table();
 
   Parser par(command_codes);
-  std::vector<u32> program = par.parse_file("examples/fact.asm");
+  std::vector<u32> program = par.parse_file("examples/float.asm");
 
   Processor proc;
   proc.load_program(program);
