@@ -1,7 +1,7 @@
 s_ = """#include<map>\n#include<vector>\n
 	#include<cstring>\n#include<iostream>\n
 	#include<climits>\n#include<sstream>\n
-	#include<fstream>\n#include<algorithm>\n#define NUM_REGISTERS 14\n
+	#include<fstream>\n#include<algorithm>\n#define NUM_REGISTERS 16\n
 	#define MEMORY_SIZE 1048575"""
 s = ""
 files = ['lang_specs.h', 'lang_specs.cpp', 'parser.h',

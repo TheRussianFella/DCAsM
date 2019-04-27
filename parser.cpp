@@ -63,7 +63,7 @@ u32 Parser::parse_line(const std::string& command_line, std::map<std::string, u3
   ss >> tmp; // Reading name of the command
 
   // Checking if the line is a naming or an end statement
-  if (tmp.find(":") != std::string::npos || !tmp.compare("end"))
+  if (tmp.find(":") != std::string::npos || !tmp.compare("end") || !tmp.size())
     return 0;
 
   std::pair<u32, command_types> command_info = command_codes[tmp];

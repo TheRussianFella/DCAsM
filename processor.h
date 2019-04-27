@@ -7,7 +7,7 @@
 #include "lang_specs.h"
 
 #define MEMORY_SIZE 1048575
-#define NUM_REGISTERS 15
+#define NUM_REGISTERS 16
 
 class Processor {
 
@@ -15,13 +15,13 @@ private:
 
   typedef int (Processor::*processor_function)(u32);
 
-  u32 data_registers[NUM_REGISTERS] = {0};
+  u32 *data_registers;
   u32 frame;
   u32 program_pointer;
   u32 flags;
 
-  u32 memory[MEMORY_SIZE] = {0};
-  std::map<u32, processor_function> command_table;
+  u32 *memory;
+  std::map<u32, processor_function>* command_table;
 
 
   u32 get_command_num(u32 word);
@@ -65,6 +65,7 @@ private:
 public:
 
   Processor();
+  ~Processor();
 
   int load_program(const std::vector<u32>& program);
   int exec();

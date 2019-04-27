@@ -1,8 +1,6 @@
 #include "lang_specs.h"
 
-std::map<std::string, std::pair<u32, command_types>> get_command_table() {
-
-  std::map<std::string, std::pair<u32, command_types>> command_codes;
+int get_command_table(std::map<std::string, std::pair<u32, command_types>>& command_codes) {
 
   // RI
   command_codes.insert(std::make_pair("addi", std::make_pair(3, _RI)));
@@ -37,6 +35,6 @@ std::map<std::string, std::pair<u32, command_types>> get_command_table() {
   command_codes.insert(std::make_pair("itod", std::make_pair(36, _RR)));
   command_codes.insert(std::make_pair("dtoi", std::make_pair(37, _RR)));
 
-  return command_codes;
+  return 0;
 
 }

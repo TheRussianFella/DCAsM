@@ -3,42 +3,55 @@
 /////// Constructor
 Processor::Processor() {
 
-  this->command_table.insert(std::make_pair(3,  &Processor::addi ));
-  this->command_table.insert(std::make_pair(5,  &Processor::subi ));
-  this->command_table.insert(std::make_pair(24, &Processor::mov ));
-  this->command_table.insert(std::make_pair(1,  &Processor::syscall ));
-  this->command_table.insert(std::make_pair(12, &Processor::lc ));
-  this->command_table.insert(std::make_pair(6,  &Processor::mul ));
-  this->command_table.insert(std::make_pair(41,  &Processor::calli ));
-  this->command_table.insert(std::make_pair(42,  &Processor::ret ));
 
-  this->command_table.insert(std::make_pair(46, &Processor::jmp ));
-  this->command_table.insert(std::make_pair(47, &Processor::jne ));
-  this->command_table.insert(std::make_pair(48, &Processor::jeq ));
-  this->command_table.insert(std::make_pair(49, &Processor::jle ));
-  this->command_table.insert(std::make_pair(50, &Processor::jl ));
-  this->command_table.insert(std::make_pair(51, &Processor::jge ));
-  this->command_table.insert(std::make_pair(52, &Processor::jg ));
-
-  this->command_table.insert(std::make_pair(38, &Processor::push ));
-  this->command_table.insert(std::make_pair(39, &Processor::pop ));
-  this->command_table.insert(std::make_pair(44, &Processor::cmpi ));
-  this->command_table.insert(std::make_pair(68, &Processor::loadr ));
-  this->command_table.insert(std::make_pair(32, &Processor::addd ));
-  this->command_table.insert(std::make_pair(33, &Processor::subd ));
-  this->command_table.insert(std::make_pair(34, &Processor::muld ));
-  this->command_table.insert(std::make_pair(35, &Processor::divd ));
-  this->command_table.insert(std::make_pair(36, &Processor::itod ));
-  this->command_table.insert(std::make_pair(37, &Processor::dtoi ));
+  command_table = new std::map<u32, processor_function>;
 
 
-  this->frame = MEMORY_SIZE-1;
-  this->data_registers[14] = MEMORY_SIZE; // Stack pointer
-  this->program_pointer = 0;
-  this->flags = 0;
+  (*command_table).insert(std::make_pair(3,  &Processor::addi ));
+  (*command_table).insert(std::make_pair(5,  &Processor::subi ));
+  (*command_table).insert(std::make_pair(24, &Processor::mov ));
+  (*command_table).insert(std::make_pair(1,  &Processor::syscall ));
+  (*command_table).insert(std::make_pair(12, &Processor::lc ));
+  (*command_table).insert(std::make_pair(6,  &Processor::mul ));
+  (*command_table).insert(std::make_pair(41,  &Processor::calli ));
+  (*command_table).insert(std::make_pair(42,  &Processor::ret ));
+
+  (*command_table).insert(std::make_pair(46, &Processor::jmp ));
+  (*command_table).insert(std::make_pair(47, &Processor::jne ));
+  (*command_table).insert(std::make_pair(48, &Processor::jeq ));
+  (*command_table).insert(std::make_pair(49, &Processor::jle ));
+  (*command_table).insert(std::make_pair(50, &Processor::jl ));
+  (*command_table).insert(std::make_pair(51, &Processor::jge ));
+  (*command_table).insert(std::make_pair(52, &Processor::jg ));
+
+  (*command_table).insert(std::make_pair(38, &Processor::push ));
+  (*command_table).insert(std::make_pair(39, &Processor::pop ));
+  (*command_table).insert(std::make_pair(44, &Processor::cmpi ));
+  (*command_table).insert(std::make_pair(68, &Processor::loadr ));
+  (*command_table).insert(std::make_pair(32, &Processor::addd ));
+  (*command_table).insert(std::make_pair(33, &Processor::subd ));
+  (*command_table).insert(std::make_pair(34, &Processor::muld ));
+  (*command_table).insert(std::make_pair(35, &Processor::divd ));
+  (*command_table).insert(std::make_pair(36, &Processor::itod ));
+  (*command_table).insert(std::make_pair(37, &Processor::dtoi ));
+
+  memory = new u32[MEMORY_SIZE];
+  data_registers = new u32[NUM_REGISTERS];
+
+  frame = MEMORY_SIZE-1;
+  data_registers[14] = MEMORY_SIZE; // Stack pointer
+  program_pointer = 0;
+  flags = 0;
+
 }
 
+Processor::~Processor() {
 
+  delete [] memory;
+  delete [] data_registers;
+  delete command_table;
+
+}
 /////// Parsing
 u32 Processor::get_command_num(u32 word) {
   return word >> (32 - 8);
@@ -91,7 +104,7 @@ int Processor::exec() {
 
   u32 word = memory[program_pointer++];
 
-  processor_function func = command_table[get_command_num(word)];
+  processor_function func = (*command_table)[get_command_num(word)];
   int code = (this->*func)(word);
 
   return code;
@@ -101,12 +114,14 @@ int Processor::load_program(const std::vector<u32>& program) {
 
   this->program_pointer = program[0];
 
-  for (int i = 1; i < program.size(); ++i)
+  for (unsigned int i = 1; i < program.size(); ++i)
     memory[i-1] = program[i];
 
   this->frame = MEMORY_SIZE-1;
 
-  std::memset(data_registers, 0, NUM_REGISTERS);
+  for (int i = 0; i < NUM_REGISTERS; ++i)
+    data_registers[i] = 0;
+
   this->data_registers[14] = MEMORY_SIZE;
 
   return 0;
@@ -215,9 +230,11 @@ int Processor::cmpi(u32 word) {
   int reg, value;
   parse_ri(word, reg, value);
 
-  if (data_registers[reg] > value)
+  int reg_val = static_cast<int>(data_registers[reg]);
+
+  if (reg_val > value)
     flags = 1;
-  else if (data_registers[reg] == value)
+  else if (reg_val == value)
     flags = 0;
   else
     flags = -1;
