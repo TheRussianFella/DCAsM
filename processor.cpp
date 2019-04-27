@@ -35,6 +35,13 @@ Processor::Processor() {
   (*command_table).insert(std::make_pair(36, &Processor::itod ));
   (*command_table).insert(std::make_pair(37, &Processor::dtoi ));
 
+  (*command_table).insert(std::make_pair(2, &Processor::add ));
+  (*command_table).insert(std::make_pair(4, &Processor::sub ));
+  (*command_table).insert(std::make_pair(7, &Processor::muli ));
+  (*command_table).insert(std::make_pair(9, &Processor::divi ));
+  (*command_table).insert(std::make_pair(8, &Processor::div ));
+  (*command_table).insert(std::make_pair(40, &Processor::call ));
+
   memory = new u32[MEMORY_SIZE];
   data_registers = new u32[NUM_REGISTERS];
 
@@ -165,7 +172,7 @@ int Processor::syscall(u32 word) {
       std::cin >> data_registers[reg];
       break;
     case PRINTINT:
-      std::cout << data_registers[reg];
+      std::cout << static_cast<int>(data_registers[reg]);
       break;
     case SCANDOUBLE: {
       double d;
@@ -238,6 +245,32 @@ int Processor::cmpi(u32 word) {
     flags = 0;
   else
     flags = -1;
+
+  return 0;
+}
+
+int Processor::muli(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  long res = data_registers[reg] * value;
+
+  data_registers[reg] = res & 4294967295; // First 32 bits
+  data_registers[reg+1] = (res >> 32) & 4294967295; // Last 32 bits
+
+  return 0;
+}
+
+int Processor::divi(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  long res = static_cast<long>(data_registers[reg] / value);
+
+  data_registers[reg] = res & 4294967295; // First 32 bits
+  data_registers[reg+1] = (res >> 32) & 4294967295; // Last 32 bits
 
   return 0;
 }
@@ -338,6 +371,19 @@ int Processor::mul(u32 word) {
   return 0;
 }
 
+int Processor::div(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  long result = static_cast<long>(data_registers[in_reg] / (data_registers[out_reg] + value));
+
+  data_registers[in_reg] = result & 4294967295; // First 32 bits
+  data_registers[in_reg+1] = (result >> 32) & 4294967295; // Last 32 bits
+
+  return 0;
+}
+
 int Processor::loadr(u32 word) {
 
   int in_reg, out_reg, value;
@@ -424,6 +470,42 @@ int Processor::dtoi(u32 word) {
   u32 num = static_cast<u32>(get_double(out_reg));
 
   data_registers[in_reg] = num;
+
+  return 0;
+}
+
+int Processor::add(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  data_registers[in_reg] += data_registers[out_reg] + value;
+
+  return 0;
+}
+
+int Processor::sub(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  data_registers[in_reg] -= data_registers[out_reg] + value;
+
+  return 0;
+}
+
+int Processor::call(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  int adress = data_registers[out_reg] + value;
+
+  data_registers[14] -= 1;
+  memory[data_registers[14]] = program_pointer;
+  data_registers[in_reg] = program_pointer+1;
+
+  program_pointer = adress;
 
   return 0;
 }

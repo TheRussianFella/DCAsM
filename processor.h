@@ -34,6 +34,8 @@ private:
   // RI Commands
   int addi(u32 word);
   int subi(u32 word);
+  int muli(u32 word);
+  int divi(u32 word);
   int syscall(u32 word);
   int lc(u32 word);
   int push(u32 word);
@@ -54,6 +56,7 @@ private:
   // RR Commands
   int mov(u32 word);
   int mul(u32 word);
+  int div(u32 word);
   int loadr(u32 word);
   int addd(u32 word);
   int subd(u32 word);
@@ -61,6 +64,9 @@ private:
   int divd(u32 word);
   int dtoi(u32 word);
   int itod(u32 word);
+  int add(u32 word);
+  int sub(u32 word);
+  int call(u32 word);
 
 public:
 

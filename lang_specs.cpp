@@ -5,6 +5,8 @@ int get_command_table(std::map<std::string, std::pair<u32, command_types>>& comm
   // RI
   command_codes.insert(std::make_pair("addi", std::make_pair(3, _RI)));
   command_codes.insert(std::make_pair("subi", std::make_pair(5, _RI)));
+  command_codes.insert(std::make_pair("muli", std::make_pair(7, _RI)));
+  command_codes.insert(std::make_pair("divi", std::make_pair(9, _RI)));
   command_codes.insert(std::make_pair("ori", std::make_pair(20, _RI)));
   command_codes.insert(std::make_pair("syscall", std::make_pair(1, _RI)));
   command_codes.insert(std::make_pair("lc", std::make_pair(12, _RI)));
@@ -26,6 +28,7 @@ int get_command_table(std::map<std::string, std::pair<u32, command_types>>& comm
   // RR
   command_codes.insert(std::make_pair("mov", std::make_pair(24, _RR)));
   command_codes.insert(std::make_pair("mul", std::make_pair(6, _RR)));
+  command_codes.insert(std::make_pair("div", std::make_pair(6, _RR)));
   command_codes.insert(std::make_pair("call", std::make_pair(40, _RR)));
   command_codes.insert(std::make_pair("loadr", std::make_pair(68, _RR)));
   command_codes.insert(std::make_pair("addd", std::make_pair(32, _RR)));
@@ -34,6 +37,10 @@ int get_command_table(std::map<std::string, std::pair<u32, command_types>>& comm
   command_codes.insert(std::make_pair("divd", std::make_pair(35, _RR)));
   command_codes.insert(std::make_pair("itod", std::make_pair(36, _RR)));
   command_codes.insert(std::make_pair("dtoi", std::make_pair(37, _RR)));
+  command_codes.insert(std::make_pair("add", std::make_pair(2, _RR)));
+  command_codes.insert(std::make_pair("sub", std::make_pair(4, _RR)));
+  command_codes.insert(std::make_pair("call", std::make_pair(40, _RR)));
+
 
   return 0;
 
