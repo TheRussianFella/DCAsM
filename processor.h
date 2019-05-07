@@ -41,6 +41,13 @@ private:
   int push(u32 word);
   int pop(u32 word);
   int cmpi(u32 word);
+  int shli(u32 word);
+  int shri(u32 word);
+  int andi(u32 word);
+  int ori(u32 word);
+  int xori(u32 word);
+  int _not(u32 word);
+
 
   // RM Commands
   int calli(u32 word);
@@ -67,6 +74,13 @@ private:
   int add(u32 word);
   int sub(u32 word);
   int call(u32 word);
+  int shl(u32 word);
+  int shr(u32 word);
+  int _and(u32 word);
+  int _or(u32 word);
+  int _xor(u32 word);
+  int cmp(u32 word);
+
 
 public:
 

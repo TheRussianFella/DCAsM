@@ -13,6 +13,13 @@ int get_command_table(std::map<std::string, std::pair<u32, command_types>>& comm
   command_codes.insert(std::make_pair("push", std::make_pair(38, _RI)));
   command_codes.insert(std::make_pair("pop", std::make_pair(39, _RI)));
   command_codes.insert(std::make_pair("cmpi", std::make_pair(44, _RI)));
+  command_codes.insert(std::make_pair("shli", std::make_pair(14, _RI)));
+  command_codes.insert(std::make_pair("shri", std::make_pair(16, _RI)));
+  command_codes.insert(std::make_pair("andi", std::make_pair(18, _RI)));
+  command_codes.insert(std::make_pair("ori", std::make_pair(20, _RI)));
+  command_codes.insert(std::make_pair("xori", std::make_pair(22, _RI)));
+  command_codes.insert(std::make_pair("not", std::make_pair(23, _RI)));
+
 
   // RM
   command_codes.insert(std::make_pair("jmp",  std::make_pair(46, _RM)));
@@ -28,7 +35,7 @@ int get_command_table(std::map<std::string, std::pair<u32, command_types>>& comm
   // RR
   command_codes.insert(std::make_pair("mov", std::make_pair(24, _RR)));
   command_codes.insert(std::make_pair("mul", std::make_pair(6, _RR)));
-  command_codes.insert(std::make_pair("div", std::make_pair(6, _RR)));
+  command_codes.insert(std::make_pair("div", std::make_pair(8, _RR)));
   command_codes.insert(std::make_pair("call", std::make_pair(40, _RR)));
   command_codes.insert(std::make_pair("loadr", std::make_pair(68, _RR)));
   command_codes.insert(std::make_pair("addd", std::make_pair(32, _RR)));
@@ -40,6 +47,12 @@ int get_command_table(std::map<std::string, std::pair<u32, command_types>>& comm
   command_codes.insert(std::make_pair("add", std::make_pair(2, _RR)));
   command_codes.insert(std::make_pair("sub", std::make_pair(4, _RR)));
   command_codes.insert(std::make_pair("call", std::make_pair(40, _RR)));
+  command_codes.insert(std::make_pair("shl", std::make_pair(13, _RR)));
+  command_codes.insert(std::make_pair("shr", std::make_pair(15, _RR)));
+  command_codes.insert(std::make_pair("and", std::make_pair(17, _RR)));
+  command_codes.insert(std::make_pair("or", std::make_pair(19, _RR)));
+  command_codes.insert(std::make_pair("xor", std::make_pair(21, _RR)));
+  command_codes.insert(std::make_pair("cmp", std::make_pair(43, _RR)));
 
 
   return 0;

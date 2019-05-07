@@ -41,6 +41,19 @@ Processor::Processor() {
   (*command_table).insert(std::make_pair(9, &Processor::divi ));
   (*command_table).insert(std::make_pair(8, &Processor::div ));
   (*command_table).insert(std::make_pair(40, &Processor::call ));
+  (*command_table).insert(std::make_pair(13, &Processor::shl ));
+  (*command_table).insert(std::make_pair(14, &Processor::shli ));
+  (*command_table).insert(std::make_pair(15, &Processor::shr ));
+  (*command_table).insert(std::make_pair(16, &Processor::shri ));
+
+  (*command_table).insert(std::make_pair(17, &Processor::_and ));
+  (*command_table).insert(std::make_pair(18, &Processor::andi ));
+  (*command_table).insert(std::make_pair(19, &Processor::_or ));
+  (*command_table).insert(std::make_pair(20, &Processor::ori ));
+  (*command_table).insert(std::make_pair(21, &Processor::_xor ));
+  (*command_table).insert(std::make_pair(22, &Processor::xori ));
+  (*command_table).insert(std::make_pair(23, &Processor::_not ));
+  (*command_table).insert(std::make_pair(43, &Processor::cmp ));
 
   memory = new u32[MEMORY_SIZE];
   data_registers = new u32[NUM_REGISTERS];
@@ -172,7 +185,7 @@ int Processor::syscall(u32 word) {
       std::cin >> data_registers[reg];
       break;
     case PRINTINT:
-      std::cout << static_cast<int>(data_registers[reg]);
+      std::cout << static_cast<int>(data_registers[reg]); //TODO: Chek if there is a problem with output here!
       break;
     case SCANDOUBLE: {
       double d;
@@ -254,7 +267,7 @@ int Processor::muli(u32 word) {
   int reg, value;
   parse_ri(word, reg, value);
 
-  long res = data_registers[reg] * value;
+  long res = static_cast<long>(data_registers[reg]) * static_cast<long>(value);
 
   data_registers[reg] = res & 4294967295; // First 32 bits
   data_registers[reg+1] = (res >> 32) & 4294967295; // Last 32 bits
@@ -267,13 +280,75 @@ int Processor::divi(u32 word) {
   int reg, value;
   parse_ri(word, reg, value);
 
-  long res = static_cast<long>(data_registers[reg] / value);
+  long res = static_cast<long>(data_registers[reg]) / static_cast<long>(value);
 
   data_registers[reg] = res & 4294967295; // First 32 bits
   data_registers[reg+1] = (res >> 32) & 4294967295; // Last 32 bits
 
   return 0;
 }
+
+int Processor::shli(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  data_registers[reg] = data_registers[reg] << value;
+
+  return 0;
+}
+
+int Processor::shri(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  data_registers[reg] = data_registers[reg] >> value;
+
+  return 0;
+}
+
+int Processor::andi(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  data_registers[reg] &= value;
+
+  return 0;
+}
+
+
+int Processor::ori(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  data_registers[reg] |= value;
+
+  return 0;
+}
+
+int Processor::xori(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  data_registers[reg] ^= value;
+
+  return 0;
+}
+
+int Processor::_not(u32 word) {
+
+  int reg, value;
+  parse_ri(word, reg, value);
+
+  data_registers[reg] = ~data_registers[reg];
+
+  return 0;
+}
+
 // RM
 
 int Processor::calli(u32 word) {
@@ -363,7 +438,7 @@ int Processor::mul(u32 word) {
   int in_reg, out_reg, value;
   parse_rr(word, in_reg, out_reg, value);
 
-  long result = data_registers[in_reg] * (data_registers[out_reg] + value);
+  long result = static_cast<long>(data_registers[in_reg]) * static_cast<long>(data_registers[out_reg] + value);
 
   data_registers[in_reg] = result & 4294967295; // First 32 bits
   data_registers[in_reg+1] = (result >> 32) & 4294967295; // Last 32 bits
@@ -376,7 +451,7 @@ int Processor::div(u32 word) {
   int in_reg, out_reg, value;
   parse_rr(word, in_reg, out_reg, value);
 
-  long result = static_cast<long>(data_registers[in_reg] / (data_registers[out_reg] + value));
+  long result = static_cast<long>(data_registers[in_reg]) / static_cast<long>(data_registers[out_reg] + value);
 
   data_registers[in_reg] = result & 4294967295; // First 32 bits
   data_registers[in_reg+1] = (result >> 32) & 4294967295; // Last 32 bits
@@ -506,6 +581,75 @@ int Processor::call(u32 word) {
   data_registers[in_reg] = program_pointer+1;
 
   program_pointer = adress;
+
+  return 0;
+}
+
+int Processor::shl(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  data_registers[in_reg] = data_registers[in_reg] << data_registers[out_reg];
+
+  return 0;
+}
+
+int Processor::shr(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  data_registers[in_reg] = data_registers[in_reg] >> data_registers[out_reg];
+
+  return 0;
+}
+
+int Processor::_and(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  data_registers[in_reg] = data_registers[in_reg] & data_registers[out_reg];
+
+  return 0;
+}
+
+int Processor::_or(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  data_registers[in_reg] = data_registers[in_reg] | data_registers[out_reg];
+
+  return 0;
+}
+
+
+int Processor::_xor(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  data_registers[in_reg] = data_registers[in_reg] ^ data_registers[out_reg];
+
+  return 0;
+}
+
+int Processor::cmp(u32 word) {
+
+  int in_reg, out_reg, value;
+  parse_rr(word, in_reg, out_reg, value);
+
+  int val1 = static_cast<int>(data_registers[in_reg]);
+  int val2 = static_cast<int>(data_registers[out_reg]);
+
+  if (val1 > val2)
+    flags = 1;
+  else if (val1 == val2)
+    flags = 0;
+  else
+    flags = -1;
 
   return 0;
 }

@@ -62,9 +62,20 @@ u32 Parser::parse_line(const std::string& command_line, std::map<std::string, u3
 
   ss >> tmp; // Reading name of the command
 
+  int label_idx = tmp.find(":");
+  int comment_idx = tmp.find(";");
+
+  label_idx = (label_idx == std::string::npos) ? 0 : label_idx + 1;
+  comment_idx = (comment_idx == std::string::npos) ? tmp.size() : comment_idx - 1;
+
+  tmp = tmp.substr(label_idx, comment_idx);
+  
   // Checking if the line is a naming or an end statement
-  if (tmp.find(":") != std::string::npos || !tmp.compare("end") || !tmp.size())
+  if (!tmp.compare("end") || !tmp.size())
     return 0;
+
+  if (tmp == "word")
+    return 1;
 
   std::pair<u32, command_types> command_info = command_codes[tmp];
 
