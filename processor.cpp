@@ -127,6 +127,9 @@ int Processor::exec() {
   processor_function func = (*command_table)[get_command_num(word)];
   int code = (this->*func)(word);
 
+  int a = 0;
+  //std::cout << data_registers[0] << " "<< data_registers[1] << " "<< data_registers[2] << " "<< data_registers[3] << " "<< data_registers[4] << " "<< data_registers[5] << " "<< data_registers[6] << " "<< data_registers[7] << " "<< data_registers[8] << "\n";
+  //std::cin >> a;
   return code;
 }
 
@@ -259,6 +262,7 @@ int Processor::cmpi(u32 word) {
   else
     flags = -1;
 
+  //std::cout << reg << " " << value << " " << flags << "\n";
   return 0;
 }
 

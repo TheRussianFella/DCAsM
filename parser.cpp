@@ -57,19 +57,19 @@ u32 Parser::get_namings(const std::string& line, std::map<std::string, u32>& nam
 
 u32 Parser::parse_line(const std::string& command_line, std::map<std::string, u32>& namings_map) {
 
-  std::stringstream ss(command_line);
+
+  size_t label_idx = command_line.find(":");
+  size_t comment_idx = command_line.find(";");
+
+  label_idx = (label_idx == std::string::npos) ? 0 : label_idx + 1;
+  comment_idx = (comment_idx == std::string::npos) ? command_line.size() : comment_idx;
+
+  std::string clean_line = command_line.substr(label_idx, comment_idx-label_idx);
+  std::stringstream ss(clean_line);
   std::string tmp;
 
   ss >> tmp; // Reading name of the command
 
-  int label_idx = tmp.find(":");
-  int comment_idx = tmp.find(";");
-
-  label_idx = (label_idx == std::string::npos) ? 0 : label_idx + 1;
-  comment_idx = (comment_idx == std::string::npos) ? tmp.size() : comment_idx - 1;
-
-  tmp = tmp.substr(label_idx, comment_idx);
-  
   // Checking if the line is a naming or an end statement
   if (!tmp.compare("end") || !tmp.size())
     return 0;
@@ -144,10 +144,13 @@ std::vector<u32> Parser::parse_file(const std::string& file_path) {
   int cur_pos = 0;
 
   while(std::getline(code_file, line)) {
+
+    trim(line);
+
     if (line.find(":") != std::string::npos)
-      namings_map.insert(std::make_pair( line.substr(0, line.size()-1), cur_pos ) );
-    else
-      cur_pos += 1;
+      namings_map.insert(std::make_pair( line.substr(0, line.find(":")), cur_pos ) );
+
+    cur_pos += line.find(":") != line.size()-1;
   }
 
   // Parsing code istelf

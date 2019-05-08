@@ -18,7 +18,7 @@ private:
   u32 *data_registers;
   u32 frame;
   u32 program_pointer;
-  u32 flags;
+  int flags;
 
   u32 *memory;
   std::map<u32, processor_function>* command_table;
